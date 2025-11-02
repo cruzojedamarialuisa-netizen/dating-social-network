@@ -12,6 +12,17 @@ export type EmotionType =
   | 'deportiva' 
   | 'espiritual' 
   | 'social'
+  | 'calma'
+  | 'pasión'
+  | 'esperanza'
+  | 'energética'
+  | 'optimista'
+  | 'misteriosa'
+  | 'amigable'
+  | 'creativa'
+  | 'independiente'
+  | 'comprensiva'
+  | 'entusiasta'
 
 export type PurposeOfLife = 
   | 'Encontrar el amor verdadero'
@@ -24,6 +35,7 @@ export type PurposeOfLife =
   | 'Encontrar mi propósito'
   | 'Vivir aventuras'
   | 'Lograr estabilidad'
+
 // Auth Types
 export interface AuthUser extends User {
   user_metadata?: {
