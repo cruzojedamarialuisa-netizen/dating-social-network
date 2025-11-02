@@ -7,6 +7,9 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholde
 const isDevelopment = process.env.NODE_ENV === 'development'
 const localStorage = typeof window !== 'undefined' ? window.localStorage : null
 
+// Exportar createClient para compatibilidad
+export { createClient }
+
 // Cliente de Supabase o fallback local
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
