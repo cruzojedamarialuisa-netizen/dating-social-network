@@ -322,7 +322,8 @@ function MessageBubble({
   )
 }
 
-export default function ChatPage({ conversationId }: ChatInterfaceProps) {
+export default function ChatPage(props: ChatInterfaceProps) {
+  const { conversationId } = props
   const { user } = useAuth()
   const [conversations, setConversations] = useState<ConversationWithLastMessage[]>([])
   const [selectedConversation, setSelectedConversation] = useState<string | null>(conversationId || null)
