@@ -54,6 +54,8 @@ export type PurposeOfLife =
   | 'Vivir experiencias únicas'
   | 'Mejorar el mundo'
   | 'Ser feliz y completo'
+  | 'Conseguir estabilidad financiera'
+  | 'Conectar con personas afines'
 
 // Auth Types
 export interface AuthUser extends User {
