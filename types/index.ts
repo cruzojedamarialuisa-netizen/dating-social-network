@@ -57,6 +57,7 @@ export type PurposeOfLife =
   | 'Conseguir estabilidad financiera'
   | 'Conectar con personas afines'
   | 'Tener una carrera exitosa'
+  | 'Tener aventuras emocionantes'  // ← LÍNEA 60 - NUEVO VALOR AGREGADO
 
 // Auth Types
 export interface AuthUser extends User {
