@@ -1,431 +1,466 @@
-'use client'
+import { User, Session } from '@supabase/supabase-js'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
-import { UserProfile, EmotionType, PurposeOfLife } from '@/types'
-import { User } from '@supabase/supabase-js'
+// Type definitions
+export type EmotionType = 
+  | 'alegre' 
+  | 'reflexiva' 
+  | 'romántica' 
+  | 'aventurera' 
+  | 'inteligente' 
+  | 'emprendedora' 
+  | 'artística' 
+  | 'deportiva' 
+  | 'espiritual' 
+  | 'social'
+  | 'calma'
+  | 'pasión'
+  | 'esperanza'
+  | 'energética'
+  | 'optimista'
+  | 'misteriosa'
+  | 'amigable'
+  | 'creativa'
+  | 'independiente'
+  | 'comprensiva'
+  | 'entusiasta'
 
-export default function ProfilePage() {
-  const router = useRouter()
-  const [user, setUser] = useState<User | null>(null)
-  const [profile, setProfile] = useState<UserProfile | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [updating, setUpdating] = useState(false)
-  const [isUploading, setIsUploading] = useState(false)
-  const [formData, setFormData] = useState({
-    full_name: '',
-    age: 0,
-    city: '',
-    country: '',
-    energy_emotion: 'alegre' as EmotionType,
-    purpose_of_life: 'Encontrar el amor verdadero' as PurposeOfLife,
-    what_seeking: '',
-    what_inspires: '',
-    presentation_video_url: ''
-  })
+export type PurposeOfLife = 
+  | 'Encontrar el amor verdadero'
+  | 'Construir una familia'
+  | 'Desarrollar mi carrera'
+  | 'Ayudar a otros'
+  | 'Viajar y vivir experiencias'
+  | 'Crear algo innovador'
+  | 'Crecer personalmente'
+  | 'Encontrar mi propósito'
+  | 'Vivir aventuras'
+  | 'Lograr estabilidad'
+  | 'Crear amistades duraderas'
+  | 'Desarrollarme personalmente'
+  | 'Viajar y explorar'
+  | 'Encontrar la felicidad'
+  | 'Contribuir a la sociedad'
+  | 'Alcanzar el éxito profesional'
+  | 'Formar una familia'
+  | 'Crear recuerdos memorables'
+  | 'Aprender constantemente'
+  | 'Impactar positivamente'
+  | 'Vivir con propósito'
+  | 'Ser mi mejor versión'
+  | 'Construir relaciones auténticas'
+  | 'Explorar el mundo'
+  | 'Crear algo significativo'
+  | 'Alcanzar la paz interior'
+  | 'Vivir experiencias únicas'
+  | 'Mejorar el mundo'
+  | 'Ser feliz y completo'
 
-  const emotionOptions: EmotionType[] = [
-    'alegre', 'reflexiva', 'romántica', 'aventurera', 'inteligente', 
-    'emprendedora', 'artística', 'deportiva', 'espiritual', 'social',
-    'calma', 'pasión', 'esperanza', 'energética', 'optimista',
-    'misteriosa', 'amigable', 'creativa', 'independiente', 'comprensiva',
-    'entusiasta'
-  ]
-
-  const purposeOptions: PurposeOfLife[] = [
-    'Encontrar el amor verdadero',
-    'Construir una familia', 
-    'Desarrollar mi carrera',
-    'Ayudar a otros',
-    'Viajar y vivir experiencias',
-    'Crear algo innovador',
-    'Crecer personalmente',
-    'Encontrar mi propósito',
-    'Vivir aventuras',
-    'Lograr estabilidad'
-  ]
-
-  useEffect(() => {
-    getUser()
-  }, [])
-
-  const getUser = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (!user) {
-        router.push('/auth/login')
-        return
-      }
-      
-      setUser(user)
-      
-      // Fetch user profile
-      const { data: profileData, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', user.id)
-        .single()
-      
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching profile:', error)
-        return
-      }
-      
-      if (profileData) {
-        setProfile(profileData)
-        setFormData({
-          full_name: profileData.full_name || '',
-          age: profileData.age || 18,
-          city: profileData.city || '',
-          country: profileData.country || '',
-          energy_emotion: profileData.energy_emotion || 'alegre',
-          purpose_of_life: profileData.purpose_of_life || 'Encontrar el amor verdadero',
-          what_seeking: profileData.what_seeking || '',
-          what_inspires: profileData.what_inspires || '',
-          presentation_video_url: profileData.presentation_video_url || ''
-        })
-      }
-    } catch (error) {
-      console.error('Error:', error)
-    } finally {
-      setLoading(false)
-    }
+// Auth Types
+export interface AuthUser extends User {
+  user_metadata?: {
+    full_name?: string
+    avatar_url?: string
+    age?: number
+    city?: string
+    country?: string
+    energy_emotion?: EmotionType
+    purpose_of_life?: PurposeOfLife
+    what_seeking?: string
+    what_inspires?: string
+    is_verified?: boolean
+    is_premium?: boolean
+    beats_balance?: number
+    last_seen?: string
+    status?: 'available' | 'away' | 'in_date' | 'offline'
   }
+}
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: name === 'age' ? parseInt(value) || 0 : value
-    }))
+// Profile Types
+export interface UserProfile {
+  id: string
+  user_id: string
+  full_name: string
+  age: number
+  city: string
+  country: string
+  avatar_url?: string
+  cover_photo_url?: string
+  presentation_video_url?: string
+  energy_emotion: EmotionType
+  purpose_of_life: PurposeOfLife
+  what_seeking: string
+  what_inspires: string
+  is_verified: boolean
+  is_premium: boolean
+  beats_balance: number
+  last_seen: string
+  status: 'available' | 'away' | 'in_date' | 'offline'
+  created_at: string
+  updated_at: string
+}
+
+// Chat Types
+export interface Message {
+  id: string
+  conversation_id: string
+  sender_id: string
+  receiver_id: string
+  content: string
+  type: 'text' | 'image' | 'video' | 'audio' | 'gift'
+  media_url?: string
+  is_read: boolean
+  reactions: MessageReaction[]
+  created_at: string
+  updated_at: string
+}
+
+export interface MessageReaction {
+  id: string
+  message_id: string
+  user_id: string
+  reaction_type: 'love' | 'joy' | 'empathy' | 'wow' | 'sad' | 'angry'
+  created_at: string
+}
+
+export interface Conversation {
+  id: string
+  participants: string[]
+  last_message?: Message
+  unread_count: number
+  updated_at: string
+  created_at: string
+}
+
+// Affinity/Connection Types
+export interface Affinity {
+  id: string
+  user1_id: string
+  user2_id: string
+  status: 'pending' | 'accepted' | 'rejected'
+  similarity_score: number
+  common_interests: string[]
+  created_at: string
+  updated_at: string
+}
+
+export interface UserAffinity extends Affinity {
+  user1_profile: UserProfile
+  user2_profile: UserProfile
+}
+
+// Gift/Payment Types
+export interface Gift {
+  id: string
+  name: string
+  description: string
+  price: number
+  animation_url?: string
+  icon: string
+  is_active: boolean
+  created_at: string
+}
+
+export interface GiftTransaction {
+  id: string
+  sender_id: string
+  receiver_id: string
+  gift_id: string
+  beats_spent: number
+  message?: string
+  created_at: string
+}
+
+export interface BeatsTransaction {
+  id: string
+  user_id: string
+  amount: number
+  type: 'purchase' | 'spent' | 'earned' | 'refund'
+  description: string
+  payment_provider?: 'stripe' | 'mercadopago' | 'flow' | 'khipu'
+  payment_id?: string
+  created_at: string
+}
+
+// Admin Types
+export interface AdminSettings {
+  id: string
+  key: string
+  value: string
+  description?: string
+  updated_at: string
+  updated_by: string
+}
+
+export interface SystemStats {
+  total_users: number
+  active_users: number
+  verified_users: number
+  premium_users: number
+  total_messages: number
+  total_affinities: number
+  total_gifts_sent: number
+  total_beats_purchased: number
+  revenue_today: number
+  revenue_month: number
+  revenue_total: number
+}
+
+// Event Types
+export interface Event {
+  id: string
+  title: string
+  description: string
+  type: 'speed_dating' | 'chat_room' | 'live_stream' | 'workshop'
+  start_time: string
+  end_time: string
+  max_participants?: number
+  current_participants: number
+  price?: number
+  is_free: boolean
+  is_active: boolean
+  created_by: string
+  created_at: string
+}
+
+export interface EventParticipant {
+  id: string
+  event_id: string
+  user_id: string
+  joined_at: string
+  left_at?: string
+}
+
+// Notification Types
+export interface Notification {
+  id: string
+  user_id: string
+  type: 'message' | 'affinity' | 'gift' | 'event' | 'system'
+  title: string
+  message: string
+  data?: any
+  is_read: boolean
+  created_at: string
+}
+
+// Search/Filter Types
+export interface SearchFilters {
+  min_age?: number
+  max_age?: number
+  location?: string
+  energy_emotions?: EmotionType[]
+  purposes?: PurposeOfLife[]
+  verified_only?: boolean
+  premium_only?: boolean
+  is_online?: boolean
+  sort_by?: 'distance' | 'activity' | 'affinity' | 'newest'
+  sort_order?: 'asc' | 'desc'
+}
+
+// API Response Types
+export interface ApiResponse<T> {
+  data?: T
+  error?: {
+    code: string
+    message: string
+    details?: any
   }
-
-  // Función para subir video
-  const handleVideoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-
-    try {
-      setIsUploading(true)
-      
-      // Validar que es un video
-      if (!file.type.startsWith('video/')) {
-        alert('Por favor selecciona un archivo de video válido')
-        return
-      }
-
-      // Crear nombre único para el archivo
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${user?.id}/profile-video-${Date.now()}.${fileExt}`
-
-      // Subir a Supabase Storage
-      const { data, error } = await supabase.storage
-        .from('videos')
-        .upload(fileName, file)
-
-      if (error) {
-        console.error('Error al subir video:', error)
-        alert('Error al subir el video')
-        return
-      }
-
-      // Obtener URL pública del video
-      const { data: urlData } = supabase.storage
-        .from('videos')
-        .getPublicUrl(fileName)
-
-      setFormData(prev => ({
-        ...prev,
-        presentation_video_url: urlData.publicUrl
-      }))
-
-    } catch (error) {
-      console.error('Error al subir video:', error)
-      alert('Error al subir el video')
-    } finally {
-      setIsUploading(false)
-    }
+  pagination?: {
+    page: number
+    limit: number
+    total: number
+    pages: number
   }
+}
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!user) return
-    
-    setUpdating(true)
-    
-    try {
-      const profileData = {
-        user_id: user.id,
-        ...formData,
-        updated_at: new Date().toISOString()
-      }
-      
-      if (profile) {
-        // Update existing profile
-        const { error } = await supabase
-          .from('profiles')
-          .update(profileData)
-          .eq('user_id', user.id)
-        
-        if (error) throw error
-      } else {
-        // Create new profile
-        const { error } = await supabase
-          .from('profiles')
-          .insert([{
-            ...profileData,
-            is_verified: false,
-            is_premium: false,
-            beats_balance: 0,
-            last_seen: new Date().toISOString(),
-            status: 'available',
-            created_at: new Date().toISOString()
-          }])
-        
-        if (error) throw error
-      }
-      
-      alert('Perfil actualizado exitosamente')
-      router.push('/dashboard')
-      
-    } catch (error) {
-      console.error('Error updating profile:', error)
-      alert('Error al actualizar el perfil')
-    } finally {
-      setUpdating(false)
-    }
+// Form Types
+export interface LoginForm {
+  email: string
+  password: string
+  remember?: boolean
+}
+
+export interface RegisterForm {
+  email: string
+  password: string
+  confirm_password: string
+  full_name: string
+  age: number
+  accept_terms: boolean
+  accept_privacy: boolean
+}
+
+export interface ProfileForm {
+  full_name: string
+  age: number
+  city: string
+  country: string
+  energy_emotion: EmotionType
+  purpose_of_life: PurposeOfLife
+  what_seeking: string
+  what_inspires: string
+}
+
+export interface SearchForm {
+  query?: string
+  filters: SearchFilters
+}
+
+// Payment Types
+export interface PaymentProvider {
+  name: 'stripe' | 'mercadopago' | 'flow' | 'khipu'
+  display_name: string
+  is_enabled: boolean
+  config: {
+    public_key?: string
+    private_key?: string
+    webhook_secret?: string
+    [key: string]: any
   }
+}
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500 flex items-center justify-center">
-        <div className="text-white text-xl">Cargando...</div>
-      </div>
-    )
+// Audio/Video Types
+export interface AudioRecording {
+  id: string
+  user_id: string
+  duration: number
+  file_url: string
+  created_at: string
+}
+
+export interface VideoCall {
+  id: string
+  conversation_id: string
+  caller_id: string
+  callee_id: string
+  status: 'initiated' | 'ringing' | 'answered' | 'ended' | 'missed'
+  started_at?: string
+  ended_at?: string
+  duration?: number
+}
+
+// Gamification Types
+export interface UserBadge {
+  id: string
+  user_id: string
+  badge_type: 'early_adopter' | 'popular' | 'helpful' | 'verified' | 'premium'
+  earned_at: string
+}
+
+export interface UserStreak {
+  id: string
+  user_id: string
+  current_streak: number
+  longest_streak: number
+  last_activity: string
+}
+
+// Settings Types
+export interface UserSettings {
+  id: string
+  user_id: string
+  notifications_enabled: boolean
+  email_notifications: boolean
+  push_notifications: boolean
+  sound_enabled: boolean
+  dark_mode: boolean
+  language: 'es' | 'en' | 'pt'
+  privacy_level: 'public' | 'friends' | 'private'
+  auto_accept_affinities: boolean
+  show_online_status: boolean
+  allow_video_calls: boolean
+  max_distance_km: number
+  created_at: string
+  updated_at: string
+}
+
+// Error Types
+export interface AppError {
+  code: string
+  message: string
+  details?: any
+  stack?: string
+}
+
+// Component Props Types
+export interface BaseComponentProps {
+  className?: string
+  children?: React.ReactNode
+}
+
+export interface LoadingState {
+  isLoading: boolean
+  error?: string | null
+}
+
+// Theme Types
+export type Theme = 'dark' | 'light' | 'auto'
+
+// Location Types
+export interface Coordinates {
+  latitude: number
+  longitude: number
+}
+
+export interface LocationData {
+  country: string
+  region: string
+  city: string
+  coordinates?: Coordinates
+}
+
+// Social Login Types
+export interface SocialProvider {
+  name: 'google' | 'facebook' | 'apple' | 'discord'
+  is_enabled: boolean
+  config: {
+    client_id: string
+    client_secret?: string
+    redirect_uri: string
   }
+}
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-xl shadow-2xl overflow-hidden">
-            <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-6">
-              <h1 className="text-3xl font-bold text-white">Mi Perfil</h1>
-              <p className="text-purple-100 mt-2">Actualiza tu información para conectar mejor</p>
-            </div>
+// AI/ML Types
+export interface AITracking {
+  user_id: string
+  interaction_type: 'view' | 'message' | 'like' | 'affinity' | 'gift'
+  target_user_id?: string
+  context: {
+    session_duration: number
+    page_url: string
+    referrer?: string
+    device_info: string
+  }
+  ai_analysis: {
+    sentiment: number
+    interests: string[]
+    personality_traits: string[]
+    recommended_features: string[]
+  }
+  created_at: string
+}
 
-            <form onSubmit={handleSubmit} className="p-8 space-y-6">
-              {/* Información básica */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nombre Completo
-                  </label>
-                  <input
-                    type="text"
-                    name="full_name"
-                    value={formData.full_name}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="Tu nombre completo"
-                  />
-                </div>
+// Real-time Types
+export interface RealtimeEvent {
+  type: 'message' | 'user_online' | 'user_offline' | 'affinity_match' | 'gift_received'
+  user_id: string
+  data: any
+  timestamp: string
+}
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Edad
-                  </label>
-                  <input
-                    type="number"
-                    name="age"
-                    value={formData.age}
-                    onChange={handleInputChange}
-                    min="18"
-                    max="100"
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="Tu edad"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Ciudad
-                  </label>
-                  <input
-                    type="text"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="Tu ciudad"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    País
-                  </label>
-                  <input
-                    type="text"
-                    name="country"
-                    value={formData.country}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="Tu país"
-                  />
-                </div>
-              </div>
-
-              {/* Energía y propósito */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    ¿Cómo describes tu energía emocional?
-                  </label>
-                  <select
-                    name="energy_emotion"
-                    value={formData.energy_emotion}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  >
-                    {emotionOptions.map((emotion) => (
-                      <option key={emotion} value={emotion}>
-                        {emotion.charAt(0).toUpperCase() + emotion.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    ¿Cuál es tu propósito de vida?
-                  </label>
-                  <select
-                    name="purpose_of_life"
-                    value={formData.purpose_of_life}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  >
-                    {purposeOptions.map((purpose) => (
-                      <option key={purpose} value={purpose}>
-                        {purpose}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Video de presentación */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Video de Presentación
-                </label>
-                <div className="space-y-4">
-                  <input
-                    type="file"
-                    accept="video/*"
-                    onChange={handleVideoUpload}
-                    className="hidden"
-                  />
-                  
-                  {formData.presentation_video_url ? (
-                    <div className="relative">
-                      <video 
-                        controls 
-                        className="w-full max-w-md rounded-lg"
-                        src={formData.presentation_video_url}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, presentation_video_url: '' }))}
-                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ) : (
-                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
-                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <svg className="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                          <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-                        </svg>
-                        <p className="mb-2 text-sm text-gray-500">
-                          <span className="font-semibold">Clic para subir video</span> o arrastra y suelta
-                        </p>
-                        <p className="text-xs text-gray-500">MP4, MOV, AVI (MAX. 100MB)</p>
-                      </div>
-                    </label>
-                  )}
-                  
-                  {isUploading && (
-                    <div className="flex items-center space-x-2 text-purple-600">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
-                      <span className="text-sm">Subiendo video...</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Textos descriptivos */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ¿Qué estás buscando?
-                </label>
-                <textarea
-                  name="what_seeking"
-                  value={formData.what_seeking}
-                  onChange={handleInputChange}
-                  rows={3}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="Describe lo que buscas en una relación o conexión..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ¿Qué te inspira?
-                </label>
-                <textarea
-                  name="what_inspires"
-                  value={formData.what_inspires}
-                  onChange={handleInputChange}
-                  rows={3}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="Comparte lo que te motiva y te hace brillar..."
-                />
-              </div>
-
-              {/* Botones */}
-              <div className="flex space-x-4 pt-6">
-                <button
-                  type="submit"
-                  disabled={updating}
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-lg font-medium hover:from-purple-700 hover:to-pink-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {updating ? 'Actualizando...' : 'Actualizar Perfil'}
-                </button>
-                
-                <button
-                  type="button"
-                  onClick={() => router.push('/dashboard')}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition duration-200"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+// Analytics Types
+export interface UserAnalytics {
+  user_id: string
+  total_logins: number
+  total_messages_sent: number
+  total_messages_received: number
+  total_profiles_viewed: number
+  total_affinities_sent: number
+  total_affinities_received: number
+  total_gifts_sent: number
+  total_gifts_received: number
+  average_session_duration: number
+  preferred_times: string[]
+  most_active_day: string
+  engagement_score: number
+  last_updated: string
 }
