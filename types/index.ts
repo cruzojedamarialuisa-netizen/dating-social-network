@@ -1,5 +1,29 @@
 import { User, Session } from '@supabase/supabase-js'
-import { EmotionType, PurposeOfLife } from './utils'
+
+// Type definitions
+export type EmotionType = 
+  | 'alegre' 
+  | 'reflexiva' 
+  | 'romántica' 
+  | 'aventurera' 
+  | 'inteligente' 
+  | 'emprendedora' 
+  | 'artística' 
+  | 'deportiva' 
+  | 'espiritual' 
+  | 'social'
+
+export type PurposeOfLife = 
+  | 'relaciones_significativas' 
+  | 'crecimiento_personal' 
+  | 'carrera_profesional' 
+  | 'familia' 
+  | 'viajes_y_experiencias' 
+  | 'ayudar_a_otros' 
+  | 'creatividad' 
+  | 'compasión' 
+  | 'aventura' 
+  | 'paz_interior'
 
 // Auth Types
 export interface AuthUser extends User {
