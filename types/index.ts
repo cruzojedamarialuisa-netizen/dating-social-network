@@ -469,4 +469,3 @@ export interface UserAnalytics {
   engagement_score: number
   last_updated: string
 }
-
