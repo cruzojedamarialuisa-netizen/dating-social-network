@@ -14,17 +14,16 @@ export type EmotionType =
   | 'social'
 
 export type PurposeOfLife = 
-  | 'relaciones_significativas' 
-  | 'crecimiento_personal' 
-  | 'carrera_profesional' 
-  | 'familia' 
-  | 'viajes_y_experiencias' 
-  | 'ayudar_a_otros' 
-  | 'creatividad' 
-  | 'compasión' 
-  | 'aventura' 
-  | 'paz_interior'
-
+  | 'Encontrar el amor verdadero'
+  | 'Construir una familia'
+  | 'Desarrollar mi carrera'
+  | 'Ayudar a otros'
+  | 'Viajar y vivir experiencias'
+  | 'Crear algo innovador'
+  | 'Crecer personalmente'
+  | 'Encontrar mi propósito'
+  | 'Vivir aventuras'
+  | 'Lograr estabilidad'
 // Auth Types
 export interface AuthUser extends User {
   user_metadata?: {
