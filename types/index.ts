@@ -57,7 +57,8 @@ export type PurposeOfLife =
   | 'Conseguir estabilidad financiera'
   | 'Conectar con personas afines'
   | 'Tener una carrera exitosa'
-  | 'Tener aventuras emocionantes'  // ← LÍNEA 60 - NUEVO VALOR AGREGADO
+  | 'Tener aventuras emocionantes'
+  | 'Encontrar equilibrio trabajo-vida'
 
 // Auth Types
 export interface AuthUser extends User {
